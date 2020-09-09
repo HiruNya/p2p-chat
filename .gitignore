@@ -1,2 +1,5 @@
+# Build folder
+build/
+
 # IntelliJ IDE
 .idea/

@@ -1,7 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"github.com/ipfs/go-log"
+)
+
+var logger = log.Logger("group-chat")
+
+const topic = "sylo-group-chat-demo"
 
 func main() {
-	fmt.Println("Hello, World!")
+	var _ = log.SetLogLevel("group-chat", "info")
+	cliArgs := ParseCliArgs()
+	logger.Infof("Nickname: \"%s\"", cliArgs.Name)
 }
