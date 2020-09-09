@@ -17,11 +17,11 @@ type CommandLineArguments struct {
 
 func ParseCliArgs() CommandLineArguments {
 	args := CommandLineArguments{}
-	flag.Var(&args.Bootstrap, "bootstrap", "Will connect to this `PEER` to bootstrap the network.")
-	flag.StringVar(&args.Name, "nickname", "", "This `NAME` will be attached to your messages.")
-	flag.BoolVar(&args.Relay, "relay", false, "Allows other peers to relay through this peer.")
-	flag.BoolVar(&args.ReadOnly, "ro", false, "Disable input and just observe the chat.")
-	flag.StringVar(&args.Ip, "ip", "", "Public `IP` address (for relay peers).")
+	flag.Var(&args.Bootstrap, "bootstrap", "Will connect to this `PEER` to bootstrap the network")
+	flag.StringVar(&args.Name, "nickname", "", "This `NAME` will be attached to your messages")
+	flag.BoolVar(&args.Relay, "relay", false, "Allows other peers to relay through this peer")
+	flag.BoolVar(&args.ReadOnly, "ro", false, "Disable input and just observe the chat")
+	flag.StringVar(&args.Ip, "ip", "", "Public `IP` address (for relay peers)")
 	flag.Parse()
 	return args
 }
