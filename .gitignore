@@ -3,3 +3,9 @@ build/
 
 # IntelliJ IDE
 .idea/
+
+# Windows
+*.exe
+
+# SSH Key
+*.pem
