@@ -4,8 +4,11 @@ build/
 # IntelliJ IDE
 .idea/
 
-# Windows
-*.exe
+# Build artifacts
+## Linux
+chat
+## Windows
+chat.exe
 
 # SSH Key
 *.pem
