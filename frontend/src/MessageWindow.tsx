@@ -1,19 +1,15 @@
-import React, {useState} from "react"
+import React from "react"
 import Message from "./Message"
+import {useSelector} from "react-redux"
+import {State} from "./redux/store"
 
 function MessageWindow() {
-	const [arr, setArr] = useState<number[]>([]);
-
-	setTimeout(() => {
-		if (arr.length < 100) {
-			setArr((arr) => [...arr, arr.length])
-		}
-	}, 1000)
+	const messages = useSelector((state: State) => state.messages)
 
 	return (
 		<div className="message-window">
 			<div className="message-box">
-				{ arr.map((i: number) => <Message user={"User"+i} text={"The message is "+i} date={i+":"+i} />) }
+				{ messages.map((msg) => <Message user={msg.User} text={msg.Text} date={msg.Date} />) }
 			</div>
 		</div>
 	)

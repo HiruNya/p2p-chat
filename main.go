@@ -92,6 +92,10 @@ func main() {
 		return
 	}
 
+	if cliArgs.WebSocket {
+		go server()
+	}
+
 	// Send messages
 	fmt.Println("Welcome to the chat!")
 	s := bufio.NewScanner(os.Stdin)

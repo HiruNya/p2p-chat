@@ -1,12 +1,33 @@
 # P2P Chat
 
-## Setup
+## Frontend
+
+### Run
+
+```sh
+cd frontend
+REACT_APP_SERVER="ws://3.106.131.208/connect" yarn start
+```
+
+Where `ws://3.106.131.208/connect` can be changed to represent the server's public ip
+or include localhost if you wish to run the peer yourself.
+
+### Build
+
+```sh
+cd frontend
+REACT_APP_SERVER="ws://3.106.131.208/connect" yarn build 
+```
+
+## Backend
+
+### Setup
 
 ```sh
 go build
 ```
 
-## Usage
+### Usage
 
 ```sh
 ./chat -nickname Hiru \
