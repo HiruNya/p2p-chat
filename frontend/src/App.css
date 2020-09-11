@@ -1,0 +1,52 @@
+.app {
+    width: 100%;
+    height: 100vh;
+    display: grid;
+    grid-template-rows: 1fr auto;
+}
+
+.container {
+    padding: 0 !important;
+}
+
+.search-bar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    margin: 10px;
+}
+
+.search-bar * {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.message-window {
+    height: 100%;
+    overflow: hidden auto;
+}
+
+.message-box {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.message-box * {
+    width: 98%;
+    padding: 10px;
+    padding-left: min(10px, 1%);
+}
+
+.message {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+}
+
+.message .message-user {
+    font-weight: bold;
+}
+
+.message .message-date {
+    font-weight: lighter;
+}
