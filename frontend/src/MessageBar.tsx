@@ -11,6 +11,7 @@ function MessageBar() {
 	function onSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault()
 		const message: MessageData = {
+			Type: "MESSAGE",
 			Text: messageText,
 			User: "WebClient",
 			Date: ""
@@ -26,6 +27,7 @@ function MessageBar() {
 					variant="outlined"
 					placeholder="Enter your message here..."
 					value={messageText}
+					disabled={(state !== "CONNECTED")}
 					onChange={(event) => setMessageText(event.target.value)}
 				/>
 				<Button type="submit" variant="contained" color="primary" disabled={(state !== "CONNECTED")}>Send</Button>

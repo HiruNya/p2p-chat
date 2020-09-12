@@ -22,6 +22,7 @@ var upgrader = websocket.Upgrader{
 }
 
 const MESSAGE = "MESSAGE"
+const JOIN = "JOIN"
 
 func server(ctx context.Context, topic *pubsub.Topic, mlog *messageLog, h host.Host) {
 	http.HandleFunc("/connect", func(writer http.ResponseWriter, request *http.Request) {
@@ -41,12 +42,16 @@ func server(ctx context.Context, topic *pubsub.Topic, mlog *messageLog, h host.H
 		go func() {
 			// Forward data to client
 			defer sub.Cancel()
+			conn.WriteJSON(wsMessage{
+				Type: JOIN,
+				Room: sub.Topic(),
+			})
 			for {
 				messageData, err := sub.Next(ctx)
 				if err != nil {
 					break
 				}
-				msg := message {}
+				msg := message{}
 				err = json.Unmarshal(messageData.Data, &msg)
 				if err != nil {
 					logger.Errorf("Could not deserialise json: %v", err)
@@ -56,7 +61,7 @@ func server(ctx context.Context, topic *pubsub.Topic, mlog *messageLog, h host.H
 				if name == "" {
 					name = msg.ID[len(msg.ID)-6 : len(msg.ID)]
 				}
-				err = conn.WriteJSON(WsMessage{
+				err = conn.WriteJSON(wsMessage{
 					Type: MESSAGE,
 					Text: msg.Text,
 					User: name,
@@ -71,7 +76,7 @@ func server(ctx context.Context, topic *pubsub.Topic, mlog *messageLog, h host.H
 		}()
 
 		// Forward messages from client to pubsub
-		wsMsg := message{}
+		wsMsg := wsMessage{}
 		for {
 			if err = conn.ReadJSON(&wsMsg); err != nil {
 				logger.Errorf("Could not read message: %v", err)
@@ -80,7 +85,7 @@ func server(ctx context.Context, topic *pubsub.Topic, mlog *messageLog, h host.H
 			m := message{
 				Clock: mlog.clock,
 				ID:    peer.Encode(h.ID()),
-				Name:  wsMsg.Name,
+				Name:  wsMsg.User,
 				Text:  wsMsg.Text,
 			}
 			b, err := json.Marshal(m)
@@ -100,9 +105,10 @@ func server(ctx context.Context, topic *pubsub.Topic, mlog *messageLog, h host.H
 	logger.Fatal(http.ListenAndServe(":8000", nil))
 }
 
-type WsMessage struct {
+type wsMessage struct {
 	Type string
 	Text string
 	User string
 	Date string
+	Room string
 }
