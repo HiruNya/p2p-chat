@@ -12,6 +12,7 @@ type AppBarProps = {
 function AppBar(props: AppBarProps) {
 	const room = useSelector((state: State) => state.room)
 	const state = useSelector((state: State) => state.type)
+	const name = useSelector((state: State) => state.nickname)
 
 	return (
 		<MaterialAppBar position="static">
@@ -20,6 +21,9 @@ function AppBar(props: AppBarProps) {
 					{ (state==="CONNECTED")? `Connected to ${room}!`: "Not Connected" }
 				</Typography>
 				<div className="filler" />
+				<Typography variant="h6">
+					{(name !== "")? ("@"+name) : ""}
+				</Typography>
 				<IconButton color="inherit" onClick={props.onSettingsButtonPressed} >
 					<Settings />
 				</IconButton>

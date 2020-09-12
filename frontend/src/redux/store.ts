@@ -4,7 +4,7 @@ import thunk from "redux-thunk"
 const store = createStore<State, Action, any, any>(reducer, applyMiddleware(thunk))
 
 function reducer(
-	state: State = {type: "UNCONNECTED", messages: [], ws: null, room: null, peer: (process.env.REACT_APP_DEFAULT_SERVER)? process.env.REACT_APP_DEFAULT_SERVER: "" },
+	state: State = {type: "UNCONNECTED", messages: [], ws: null, room: null, nickname: "", peer: (process.env.REACT_APP_DEFAULT_SERVER)? process.env.REACT_APP_DEFAULT_SERVER: "" },
 	action: Action): State {
 
 	switch (action.type) {
@@ -19,6 +19,8 @@ function reducer(
 			return { ...state, messages }
 		case "ROOM_JOINED":
 			return { ...state, messages: [], room: action.room }
+		case "SET_NICKNAME":
+			return { ...state, nickname: action.name }
 	}
 	return state
 }
@@ -29,6 +31,7 @@ export type State = {
 	ws: WebSocket | null,
 	room: string | null,
 	peer: string | null,
+	nickname: string,
 }
 
 export type MessageData = {
@@ -39,12 +42,13 @@ export type MessageData = {
 }
 
 export type Action = ConnectionStartAction | ConnectionEstablishedAction | ConnectionEndedAction | MessageAction
-	| RoomJoinAction
+	| RoomJoinAction | SetNicknameAction
 type ConnectionStartAction = { type: "CONNECTION_START", peer: string }
 type ConnectionEstablishedAction = { type: "CONNECTION_ESTABLISHED", ws: WebSocket }
 type ConnectionEndedAction = { type: "CONNECTION_ENDED" }
 type MessageAction = { type: "MESSAGE", msg: MessageData }
 type RoomJoinAction = { type: "ROOM_JOINED", room: string }
+type SetNicknameAction = { type: "SET_NICKNAME", name: string }
 
 type RoomJoinData = {
 	Type: "JOIN",

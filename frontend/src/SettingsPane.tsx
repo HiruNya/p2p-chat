@@ -1,7 +1,7 @@
 import React, {useState} from "react"
 import {Button, Divider, Drawer, List, ListItem, TextField, Typography} from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux"
-import {connect, State} from "./redux/store"
+import {Action, connect, State} from "./redux/store"
 
 type SettingsPaneProps = {
 	open: boolean,
@@ -12,12 +12,23 @@ function SettingsPane(props: SettingsPaneProps) {
 	const dispatch = useDispatch()
 	const peerAddress = useSelector((state: State) => state.peer)
 	const [peerValue, setPeerValue] = useState("")
+	const nickname = useSelector((state: State) => state.nickname)
+	const [nameValue, setNameValue] = useState("")
 
 	function onConnectClicked(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
 		if (peerValue && peerValue !== "") {
 			dispatch(connect(peerValue))
 		}
+	}
+
+	function onSetNickname(event: React.FormEvent<HTMLFormElement>) {
+		event.preventDefault()
+		const setNickname: Action = {
+			type: "SET_NICKNAME",
+			name: nameValue,
+		}
+		dispatch(setNickname)
 	}
 
 	return (
@@ -28,8 +39,20 @@ function SettingsPane(props: SettingsPaneProps) {
 		>
 			<List>
 				<ListItem>
+					<form className="settings-pane-form" onSubmit={onSetNickname} >
+						<Typography variant="h6">Set Nickname</Typography>
+						<TextField
+							variant="outlined"
+							value={nameValue}
+							onChange={(event) => setNameValue(event.target.value)}
+							placeholder={(nickname)? nickname : ""}
+						/>
+						<Button type="submit" color="primary" variant="contained">Set</Button>
+					</form>
+				</ListItem>
+				<ListItem>
 					<form className="settings-pane-form" onSubmit={onConnectClicked} >
-						<Typography variant="h6">Connect to a different peer:</Typography>
+						<Typography variant="h6">Connect to a different peer</Typography>
 						<TextField
 							variant="outlined"
 							value={peerValue}
