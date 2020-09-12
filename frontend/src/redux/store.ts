@@ -24,7 +24,7 @@ export type State = {
 	ws: WebSocket | null,
 }
 
-type MessageData = {
+export type MessageData = {
 	Text: string,
 	User: string,
 	Date: string,

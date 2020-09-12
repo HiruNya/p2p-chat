@@ -86,14 +86,14 @@ func main() {
 		}
 	}
 
+	if cliArgs.WebSocket {
+		go server(ctx, t, &mlog, h)
+	}
+
 	// If this is in read-only mode, then all you have to do is wait
 	if cliArgs.ReadOnly {
 		<-ctx.Done() // Wait for the program to close
 		return
-	}
-
-	if cliArgs.WebSocket {
-		go server()
 	}
 
 	// Send messages
