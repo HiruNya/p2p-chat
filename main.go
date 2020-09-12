@@ -87,7 +87,7 @@ func main() {
 	}
 
 	if cliArgs.WebSocket {
-		go server(ctx, t, &mlog, h)
+		go server(ctx, t, &mlog, h, cliArgs)
 	}
 
 	// If this is in read-only mode, then all you have to do is wait

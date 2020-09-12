@@ -3,10 +3,13 @@ import thunk from "redux-thunk"
 
 const store = createStore<State, Action, any, any>(reducer, applyMiddleware(thunk))
 
-function reducer(state: State = {type: "UNCONNECTED", messages: [], ws: null, room: null}, action: Action): State {
+function reducer(
+	state: State = {type: "UNCONNECTED", messages: [], ws: null, room: null, peer: (process.env.REACT_APP_DEFAULT_SERVER)? process.env.REACT_APP_DEFAULT_SERVER: "" },
+	action: Action): State {
+
 	switch (action.type) {
 		case "CONNECTION_START":
-			return { ...state, type: "CONNECTING" }
+			return { ...state, type: "CONNECTING", peer: action.peer, ws: null, messages: [] }
 		case "CONNECTION_ESTABLISHED":
 			return { ...state, type: "CONNECTED", ws: action.ws }
 		case "CONNECTION_ENDED":
@@ -25,6 +28,7 @@ export type State = {
 	messages: MessageData[],
 	ws: WebSocket | null,
 	room: string | null,
+	peer: string | null,
 }
 
 export type MessageData = {
@@ -36,7 +40,7 @@ export type MessageData = {
 
 export type Action = ConnectionStartAction | ConnectionEstablishedAction | ConnectionEndedAction | MessageAction
 	| RoomJoinAction
-type ConnectionStartAction = { type: "CONNECTION_START" }
+type ConnectionStartAction = { type: "CONNECTION_START", peer: string }
 type ConnectionEstablishedAction = { type: "CONNECTION_ESTABLISHED", ws: WebSocket }
 type ConnectionEndedAction = { type: "CONNECTION_ENDED" }
 type MessageAction = { type: "MESSAGE", msg: MessageData }
@@ -47,17 +51,20 @@ type RoomJoinData = {
 	Room: string,
 }
 
-
-const CONNECTION_ADDRESS = process.env.REACT_APP_SERVER
-
-function connect() {
+function connect(peer: string | null) {
 	return (dispatch: any) => {
-		dispatch({ type: "CONNECTION_START" })
-		if (CONNECTION_ADDRESS == null) {
+		dispatch({ type: "CONNECTION_START", peer })
+		if (peer == null) {
 			dispatch({type: "CONNECTION_ENDED"})
 			return
 		}
-		const ws = new WebSocket(CONNECTION_ADDRESS)
+		let ws: WebSocket;
+		try {
+			ws = new WebSocket(peer)
+		} catch (e) {
+			dispatch({type: "CONNECTION_ENDED"})
+			return
+		}
 		if (ws == null) {
 			dispatch({type: "CONNECTION_ENDED"})
 			return

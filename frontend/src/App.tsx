@@ -1,33 +1,30 @@
-import React, {useEffect} from 'react'
+import React, {useState} from 'react'
 import {useDispatch, useSelector} from "react-redux"
-import {AppBar, Container, Paper, Toolbar, Typography} from '@material-ui/core'
+import {Container, Paper} from '@material-ui/core'
+import AppBar from "./AppBar"
 import MessageWindow from "./MessageWindow"
 import MessageBar from "./MessageBar"
+import SettingsPane from "./SettingsPane"
 import {connect, State} from "./redux/store"
 import "./App.css"
 
 function App() {
-	const state = useSelector((state: State) => state.type)
-	const room = useSelector((state: State) => state.room)
 	const dispatch = useDispatch()
+	const [drawerOpen, setDrawerOpen] = useState(false)
+	const peer = useSelector((state: State) => state.peer)
+	const [initialLoad, setInitialLoad] = useState(true)
 
-	useEffect(() => {
-		if (state === "UNCONNECTED") {
-			dispatch(connect())
-		}
-	})
+	if (initialLoad) {
+		dispatch(connect(peer))
+		setInitialLoad(false)
+	}
 
 	return (
 		<Container maxWidth="xl" className="container">
 			<Paper>
+				<SettingsPane open={drawerOpen} setOpen={setDrawerOpen} />
 				<div className="app">
-					<AppBar position="static">
-						<Toolbar>
-							<Typography variant="h6">
-								{ (state==="CONNECTED")? `Connected to ${room}!`: "Not Connected" }
-							</Typography>
-						</Toolbar>
-					</AppBar>
+					<AppBar onSettingsButtonPressed={() => setDrawerOpen(true)} />
 					<MessageWindow />
 					<MessageBar />
 				</div>

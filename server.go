@@ -24,7 +24,7 @@ var upgrader = websocket.Upgrader{
 const MESSAGE = "MESSAGE"
 const JOIN = "JOIN"
 
-func server(ctx context.Context, topic *pubsub.Topic, mlog *messageLog, h host.Host) {
+func server(ctx context.Context, topic *pubsub.Topic, mlog *messageLog, h host.Host, cli CommandLineArguments) {
 	http.HandleFunc("/connect", func(writer http.ResponseWriter, request *http.Request) {
 		conn, err := upgrader.Upgrade(writer, request, nil)
 		if err != nil {
@@ -102,7 +102,12 @@ func server(ctx context.Context, topic *pubsub.Topic, mlog *messageLog, h host.H
 
 	})
 
-	logger.Fatal(http.ListenAndServe(":8000", nil))
+	ip := cli.Ip
+	if ip == "" {
+		ip = "localhost"
+	}
+	logger.Infof("Serving websocket connection on ws://%s:%d/connect", ip, cli.WebsocketPort)
+	logger.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", cli.Ip, cli.WebsocketPort), nil))
 }
 
 type wsMessage struct {

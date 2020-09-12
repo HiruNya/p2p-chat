@@ -9,6 +9,18 @@
     padding: 0 !important;
 }
 
+.app-bar {
+    display: flex;
+}
+
+.app-bar * {
+    flex: auto;
+}
+
+.app-bar .filler {
+    flex: 1;
+}
+
 .search-bar {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -49,4 +61,10 @@
 
 .message .message-date {
     font-weight: lighter;
+}
+
+.settings-pane-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
