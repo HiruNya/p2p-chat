@@ -1,12 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/libp2p/go-libp2p-core/peer"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -22,14 +18,10 @@ import (
 
 var logger = log.Logger("group-chat")
 
-const topic = "sylo-group-chat-demo"
-
 func main() {
 	var _ = log.SetLogLevel("group-chat", "info")
 	cliArgs := ParseCliArgs()
 	logger.Infof("Nickname: \"%s\"", cliArgs.Name)
-	mlog := messageLog{}
-	mlog.data = make(map[message]struct{})
 
 	// Start host
 	ctx := context.Background()
@@ -50,22 +42,27 @@ func main() {
 		logger.Fatalf("Could not start lbp2p host: %v", err)
 	}
 
+	// DHT for Rooms
+	roomDht, err := dht.New(ctx, h,
+		dht.BootstrapPeers(cliArgs.Bootstrap.toPeerAddrArray()...),
+		dht.ProtocolPrefix("/hiruchat"))
+	if err != nil {
+		logger.Fatalf("Could not create DHT for rooms: %v", roomDht)
+	}
+	if err := roomDht.Bootstrap(ctx); err != nil {
+		logger.Fatalf("Failed to bootstrap the room table: %v", err)
+	}
+
 	// Subscribe to messages
 	ps, err := pubsub.NewFloodSub(ctx, h)
 	if err != nil {
 		logger.Fatalf("Could not start pubsub: %v", err)
 	}
-	t, err := ps.Join(topic)
-	if err != nil {
-		logger.Fatalf("Could not join pubsub topic: %v", err)
-	}
-	sub, err := t.Subscribe()
-	if err != nil {
-		logger.Fatalf("Could not subscribe to topic: %v", err)
-	}
+
+	currentRoom := newRoom(ctx, h, roomDht, ps, cliArgs.Room)
 
 	// Spawn a goroutine to handle incoming messages
-	go handleMessages(ctx, sub, &mlog)
+	//go handleMessages(ctx, sub, &mlog)
 
 	// Connect to bootstrap peers
 	for _, b := range cliArgs.Bootstrap {
@@ -87,61 +84,61 @@ func main() {
 	}
 
 	if cliArgs.WebSocket {
-		go server(ctx, t, &mlog, h, cliArgs)
+		go server(ctx, h, cliArgs, ps, &currentRoom)
 	}
 
-	// If this is in read-only mode, then all you have to do is wait
-	if cliArgs.ReadOnly {
-		<-ctx.Done() // Wait for the program to close
-		return
-	}
-
-	// Send messages
-	fmt.Println("Welcome to the chat!")
-	s := bufio.NewScanner(os.Stdin)
-	for s.Scan() {
-		m := message{
-			Clock: mlog.clock,
-			ID:    peer.Encode(h.ID()),
-			Name:  cliArgs.Name,
-			Text:  s.Text(),
-		}
-		b, err := json.Marshal(m)
-		if err != nil {
-			logger.Errorf("Could not marshal message: %v", err)
-			continue
-		}
-		err = t.Publish(ctx, b)
-		if err != nil {
-			logger.Errorf("Could not publish message: %v", err)
-			continue
-		}
-	}
-	if err = s.Err(); err != nil {
-		logger.Fatalf("Input scanner error: %v", err)
-	}
+	//// If this is in read-only mode, then all you have to do is wait
+	//if cliArgs.ReadOnly {
+	<-ctx.Done() // Wait for the program to close
+	//	return
+	//}
+	//
+	//// Send messages
+	//fmt.Println("Welcome to the chat!")
+	//s := bufio.NewScanner(os.Stdin)
+	//for s.Scan() {
+	//	m := message{
+	//		Clock: mlog.clock,
+	//		ID:    peer.Encode(h.ID()),
+	//		Name:  cliArgs.Name,
+	//		Text:  s.Text(),
+	//	}
+	//	b, err := json.Marshal(m)
+	//	if err != nil {
+	//		logger.Errorf("Could not marshal message: %v", err)
+	//		continue
+	//	}
+	//	err = t.Publish(ctx, b)
+	//	if err != nil {
+	//		logger.Errorf("Could not publish message: %v", err)
+	//		continue
+	//	}
+	//}
+	//if err = s.Err(); err != nil {
+	//	logger.Fatalf("Input scanner error: %v", err)
+	//}
 }
 
-func handleMessages(ctx context.Context, sub *pubsub.Subscription, mlog *messageLog) {
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-			next, err := sub.Next(ctx)
-			if err != nil {
-				logger.Fatalf("Could not get message: %v", err)
-			}
-			msg := message{}
-			err = json.Unmarshal(next.Data, &msg)
-			if err != nil {
-				logger.Errorf("Could not decode message: %v", err)
-				continue
-			}
-			mlog.Append(msg)
-		}
-	}
-}
+//func handleMessages(ctx context.Context, sub *pubsub.Subscription, mlog *messageLog) {
+//	for {
+//		select {
+//		case <-ctx.Done():
+//			return
+//		default:
+//			next, err := sub.Next(ctx)
+//			if err != nil {
+//				logger.Fatalf("Could not get message: %v", err)
+//			}
+//			msg := message{}
+//			err = json.Unmarshal(next.Data, &msg)
+//			if err != nil {
+//				logger.Errorf("Could not decode message: %v", err)
+//				continue
+//			}
+//			mlog.Append(msg)
+//		}
+//	}
+//}
 
 func (mlog *messageLog) Append(msg message) {
 	mlog.mux.Lock()
