@@ -55,7 +55,10 @@ type RoomJoinData = {
 	Room: string,
 }
 
-function connect(peer: string | null) {
+function connect(peer: string | null, wsOld: WebSocket | null) {
+	if (wsOld !== null) {
+		wsOld.close()
+	}
 	return (dispatch: any) => {
 		dispatch({ type: "CONNECTION_START", peer })
 		if (peer == null) {

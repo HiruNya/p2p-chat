@@ -10,6 +10,7 @@ type SettingsPaneProps = {
 
 function SettingsPane(props: SettingsPaneProps) {
 	const dispatch = useDispatch()
+	const ws = useSelector((state: State) => state.ws)
 	const peerAddress = useSelector((state: State) => state.peer)
 	const [peerValue, setPeerValue] = useState("")
 	const nickname = useSelector((state: State) => state.nickname)
@@ -18,7 +19,7 @@ function SettingsPane(props: SettingsPaneProps) {
 	function onConnectClicked(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
 		if (peerValue && peerValue !== "") {
-			dispatch(connect(peerValue))
+			dispatch(connect(peerValue, ws))
 		}
 	}
 

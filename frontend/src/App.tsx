@@ -12,10 +12,11 @@ function App() {
 	const dispatch = useDispatch()
 	const [drawerOpen, setDrawerOpen] = useState(false)
 	const peer = useSelector((state: State) => state.peer)
+	const ws = useSelector(((state: State) => state.ws))
 	const [initialLoad, setInitialLoad] = useState(true)
 
 	if (initialLoad) {
-		dispatch(connect(peer))
+		dispatch(connect(peer, ws))
 		setInitialLoad(false)
 	}
 
