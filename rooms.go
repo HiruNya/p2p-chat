@@ -99,12 +99,15 @@ func findMembersInRoom(ctx context.Context, host host.Host, roomDiscovery *disco
 		return
 	}
 	for peer := range peerChannel {
+		if peer.ID == host.ID() {
+			continue
+		}
 		logger.Infof("Found member in room!")
 		if err = host.Connect(ctx, peer); err != nil {
 			logger.Errorf("Could not connect to peer found in room: %v", err)
 			break
 		}
-		logger.Infof("Connected to member in room!")
+		logger.Infof("Connected to member in room! %v", peer.Addrs)
 	}
 }
 

@@ -83,6 +83,8 @@ func main() {
 		}
 	}
 
+	logger.Infof("PeerID: %s", h.ID().String())
+
 	if cliArgs.WebSocket {
 		go server(ctx, h, cliArgs, ps, &currentRoom)
 	}
