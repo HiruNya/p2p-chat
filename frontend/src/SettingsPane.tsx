@@ -1,7 +1,7 @@
 import React, {useState} from "react"
 import {Button, Divider, Drawer, List, ListItem, TextField, Typography} from "@material-ui/core"
 import {useDispatch, useSelector} from "react-redux"
-import {Action, connect, State} from "./redux/store"
+import {Action, connect, RoomJoinData, State} from "./redux/store"
 
 type SettingsPaneProps = {
 	open: boolean,
@@ -15,6 +15,8 @@ function SettingsPane(props: SettingsPaneProps) {
 	const [peerValue, setPeerValue] = useState("")
 	const nickname = useSelector((state: State) => state.nickname)
 	const [nameValue, setNameValue] = useState("")
+	const room = useSelector((state: State) => state.room)
+	const [roomValue, setRoomValue] = useState("")
 
 	function onConnectClicked(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault()
@@ -30,6 +32,15 @@ function SettingsPane(props: SettingsPaneProps) {
 			name: nameValue,
 		}
 		dispatch(setNickname)
+	}
+
+	function onEnterRoom(event: React.FormEvent<HTMLFormElement>) {
+		event.preventDefault()
+		const wsMsg: RoomJoinData = {
+			Type: "JOIN",
+			Room: roomValue,
+		}
+		ws?.send(JSON.stringify(wsMsg))
 	}
 
 	return (
@@ -52,8 +63,20 @@ function SettingsPane(props: SettingsPaneProps) {
 					</form>
 				</ListItem>
 				<ListItem>
+					<form className="settings-pane-form" onSubmit={onEnterRoom} >
+						<Typography variant="h6">Enter Room</Typography>
+						<TextField
+							variant="outlined"
+							value={roomValue}
+							onChange={(event) => setRoomValue(event.target.value)}
+							placeholder={(room)? room : ""}
+						/>
+						<Button type="submit" color="primary" variant="contained">Enter</Button>
+					</form>
+				</ListItem>
+				<ListItem>
 					<form className="settings-pane-form" onSubmit={onConnectClicked} >
-						<Typography variant="h6">Connect to a different peer</Typography>
+						<Typography variant="h6">Connect to a Different Peer</Typography>
 						<TextField
 							variant="outlined"
 							value={peerValue}

@@ -50,7 +50,7 @@ type MessageAction = { type: "MESSAGE", msg: MessageData }
 type RoomJoinAction = { type: "ROOM_JOINED", room: string }
 type SetNicknameAction = { type: "SET_NICKNAME", name: string }
 
-type RoomJoinData = {
+export type RoomJoinData = {
 	Type: "JOIN",
 	Room: string,
 }
