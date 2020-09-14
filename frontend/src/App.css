@@ -65,6 +65,17 @@
     font-weight: lighter;
 }
 
+.message-contents * {
+    display: inline;
+    padding: 0;
+    vertical-align: bottom;
+}
+
+.message-contents > p img {
+    max-width: 100px;
+    max-height: 100px;
+}
+
 .settings-pane-form {
     display: flex;
     flex-direction: column;
