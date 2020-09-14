@@ -25,7 +25,7 @@ type room struct {
 	mlog             messageLog
 }
 
-func newRoom(mainCtx context.Context, host host.Host, table *dht.IpfsDHT, ps *pubsub.PubSub, name string) room {
+func newRoom(mainCtx context.Context, host host.Host, table *dht.IpfsDHT, ps *pubsub.PubSub, name string) *room {
 	// Advertise the room you wish to join
 	topic, err := ps.Join(name)
 	if err != nil {
@@ -38,8 +38,7 @@ func newRoom(mainCtx context.Context, host host.Host, table *dht.IpfsDHT, ps *pu
 	roomDiscovery := discovery.NewRoutingDiscovery(table)
 	cancellableCtx, cancelAdvertiser := context.WithCancel(mainCtx)
 	discovery.Advertise(cancellableCtx, roomDiscovery, name)
-	go findMembersInRoom(cancellableCtx, host, roomDiscovery, name)
-	return room{
+	r := room{
 		discovery:        roomDiscovery,
 		host:             host,
 		cancelAdvertiser: cancelAdvertiser,
@@ -51,6 +50,9 @@ func newRoom(mainCtx context.Context, host host.Host, table *dht.IpfsDHT, ps *pu
 		mlog:             messageLog{data: make(map[message]struct{})},
 		subscribed:       make(chan *websocket.Conn, 1024),
 	}
+	go findMembersInRoom(cancellableCtx, host, roomDiscovery, name, &r)
+	go r.recv()
+	return &r
 }
 
 // Join a new room
@@ -73,9 +75,13 @@ func (r *room) joinRoom(roomName string) {
 	if err != nil {
 		logger.Fatalf("Could not join new topic: %v", err)
 	}
+	r.sub, err = r.topic.Subscribe()
+	if err != nil {
+		logger.Fatalf("Could not subscribe to new room: %v", err)
+	}
 	cancellableCtx, cancelAdvertiser := context.WithCancel(r.mainCtx)
 	discovery.Advertise(cancellableCtx, r.discovery, roomName)
-	go findMembersInRoom(cancellableCtx, r.host, r.discovery, roomName)
+	go findMembersInRoom(cancellableCtx, r.host, r.discovery, roomName, r)
 	r.cancelAdvertiser = cancelAdvertiser
 	r.cancellableCtx = cancellableCtx
 
@@ -92,7 +98,7 @@ func (r *room) joinRoom(roomName string) {
 	}
 }
 
-func findMembersInRoom(ctx context.Context, host host.Host, roomDiscovery *discovery.RoutingDiscovery, roomName string) {
+func findMembersInRoom(ctx context.Context, host host.Host, roomDiscovery *discovery.RoutingDiscovery, roomName string, currentRoom *room) {
 	peerChannel, err := roomDiscovery.FindPeers(ctx, roomName)
 	if err != nil {
 		logger.Errorf("Could not find more peers in the room: %v", err)
@@ -105,7 +111,7 @@ func findMembersInRoom(ctx context.Context, host host.Host, roomDiscovery *disco
 		logger.Infof("Found member in room!")
 		if err = host.Connect(ctx, peer); err != nil {
 			logger.Errorf("Could not connect to peer found in room: %v", err)
-			break
+			continue
 		}
 		logger.Infof("Connected to member in room! %v", peer.Addrs)
 	}
@@ -127,7 +133,7 @@ func (r *room) recv() {
 		msgData, err := r.sub.Next(r.mainCtx)
 		if err != nil {
 			logger.Errorf("Could not get next value: %v", err)
-			return
+			continue
 		}
 		msg := message{}
 		if err = json.Unmarshal(msgData.Data, &msg); err != nil {

@@ -86,7 +86,7 @@ func main() {
 	logger.Infof("PeerID: %s", h.ID().String())
 
 	if cliArgs.WebSocket {
-		go server(ctx, h, cliArgs, ps, &currentRoom)
+		go server(ctx, h, cliArgs, ps, currentRoom)
 	}
 
 	//// If this is in read-only mode, then all you have to do is wait
