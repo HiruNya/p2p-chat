@@ -23,6 +23,7 @@ var upgrader = websocket.Upgrader{
 
 const MESSAGE = "MESSAGE"
 const JOIN = "JOIN"
+const JOIN_REPLY = "JOIN_REPLY"
 
 func server(ctx context.Context, topic *pubsub.Topic, mlog *messageLog, h host.Host, cli CommandLineArguments) {
 	http.HandleFunc("/connect", func(writer http.ResponseWriter, request *http.Request) {
