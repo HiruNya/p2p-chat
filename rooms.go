@@ -50,7 +50,7 @@ func newRoom(mainCtx context.Context, host host.Host, table *dht.IpfsDHT, ps *pu
 		mlog:             messageLog{data: make(map[message]struct{})},
 		subscribed:       make(chan *websocket.Conn, 1024),
 	}
-	go findMembersInRoom(cancellableCtx, host, roomDiscovery, name, &r)
+	go findMembersInRoom(cancellableCtx, host, roomDiscovery, name)
 	go r.recv()
 	return &r
 }
@@ -81,7 +81,7 @@ func (r *room) joinRoom(roomName string) {
 	}
 	cancellableCtx, cancelAdvertiser := context.WithCancel(r.mainCtx)
 	discovery.Advertise(cancellableCtx, r.discovery, roomName)
-	go findMembersInRoom(cancellableCtx, r.host, r.discovery, roomName, r)
+	go findMembersInRoom(cancellableCtx, r.host, r.discovery, roomName)
 	r.cancelAdvertiser = cancelAdvertiser
 	r.cancellableCtx = cancellableCtx
 
@@ -98,7 +98,7 @@ func (r *room) joinRoom(roomName string) {
 	}
 }
 
-func findMembersInRoom(ctx context.Context, host host.Host, roomDiscovery *discovery.RoutingDiscovery, roomName string, currentRoom *room) {
+func findMembersInRoom(ctx context.Context, host host.Host, roomDiscovery *discovery.RoutingDiscovery, roomName string) {
 	peerChannel, err := roomDiscovery.FindPeers(ctx, roomName)
 	if err != nil {
 		logger.Errorf("Could not find more peers in the room: %v", err)

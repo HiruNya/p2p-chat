@@ -61,9 +61,6 @@ func main() {
 
 	currentRoom := newRoom(ctx, h, roomDht, ps, cliArgs.Room)
 
-	// Spawn a goroutine to handle incoming messages
-	//go handleMessages(ctx, sub, &mlog)
-
 	// Connect to bootstrap peers
 	for _, b := range cliArgs.Bootstrap {
 		if err := h.Connect(ctx, *b); err != nil {
@@ -85,62 +82,10 @@ func main() {
 
 	logger.Infof("PeerID: %s", h.ID().String())
 
-	if cliArgs.WebSocket {
-		go server(ctx, h, cliArgs, ps, currentRoom)
-	}
+	go server(ctx, h, cliArgs, ps, currentRoom)
 
-	//// If this is in read-only mode, then all you have to do is wait
-	//if cliArgs.ReadOnly {
 	<-ctx.Done() // Wait for the program to close
-	//	return
-	//}
-	//
-	//// Send messages
-	//fmt.Println("Welcome to the chat!")
-	//s := bufio.NewScanner(os.Stdin)
-	//for s.Scan() {
-	//	m := message{
-	//		Clock: mlog.clock,
-	//		ID:    peer.Encode(h.ID()),
-	//		Name:  cliArgs.Name,
-	//		Text:  s.Text(),
-	//	}
-	//	b, err := json.Marshal(m)
-	//	if err != nil {
-	//		logger.Errorf("Could not marshal message: %v", err)
-	//		continue
-	//	}
-	//	err = t.Publish(ctx, b)
-	//	if err != nil {
-	//		logger.Errorf("Could not publish message: %v", err)
-	//		continue
-	//	}
-	//}
-	//if err = s.Err(); err != nil {
-	//	logger.Fatalf("Input scanner error: %v", err)
-	//}
 }
-
-//func handleMessages(ctx context.Context, sub *pubsub.Subscription, mlog *messageLog) {
-//	for {
-//		select {
-//		case <-ctx.Done():
-//			return
-//		default:
-//			next, err := sub.Next(ctx)
-//			if err != nil {
-//				logger.Fatalf("Could not get message: %v", err)
-//			}
-//			msg := message{}
-//			err = json.Unmarshal(next.Data, &msg)
-//			if err != nil {
-//				logger.Errorf("Could not decode message: %v", err)
-//				continue
-//			}
-//			mlog.Append(msg)
-//		}
-//	}
-//}
 
 func (mlog *messageLog) Append(msg message) {
 	mlog.mux.Lock()

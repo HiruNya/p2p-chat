@@ -13,7 +13,6 @@ type CommandLineArguments struct {
 	Relay         bool
 	ReadOnly      bool
 	Ip            string
-	WebSocket     bool
 	WebsocketPort uint64
 	Room          string
 }
@@ -25,8 +24,7 @@ func ParseCliArgs() CommandLineArguments {
 	flag.BoolVar(&args.Relay, "relay", false, "Allows other peers to relay through this peer")
 	flag.BoolVar(&args.ReadOnly, "ro", false, "Disable input and just observe the chat")
 	flag.StringVar(&args.Ip, "ip", "", "Public `IP` address (for relay peers)")
-	flag.BoolVar(&args.WebSocket, "websocket", false, "Enable websocket connections to connect to this peer")
-	flag.Uint64Var(&args.WebsocketPort, "wsport", 0, "The port where a websocket connection will be opened")
+	flag.Uint64Var(&args.WebsocketPort, "wsport", 8000, "The port where a websocket connection will be opened")
 	flag.StringVar(&args.Room, "room", "main", "The room to join")
 	flag.Parse()
 	return args

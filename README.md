@@ -2,21 +2,22 @@
 
 ## Frontend
 
+The frontend is also hosted at [chat.hiru.dev](https://chat.hiru.dev).
+
 ### Run
 
 ```sh
 cd frontend
-REACT_APP_SERVER="ws://3.106.131.208/connect" yarn start
+yarn start
 ```
 
-Where `ws://3.106.131.208/connect` can be changed to represent the server's public ip
-or include localhost if you wish to run the peer yourself.
+Then go into settings and set the peer you wish to connect to!
 
 ### Build
 
 ```sh
 cd frontend
-REACT_APP_SERVER="ws://3.106.131.208/connect" yarn build 
+yarn build 
 ```
 
 ## Backend
@@ -30,9 +31,9 @@ go build
 ### Usage
 
 ```sh
-./chat -nickname Hiru \
--bootstrap /ip4/3.106.131.208/tcp/35491/p2p/QmdKktf8LkcqoWGnoFmg9yz8Wyr2HdhRYhKssnxq8gtrqM \
--bootstrap /ip4/52.65.56.175/tcp/35431/p2p/QmbRQw7pHuPpGnHqkzqZDAbUnqaiagABHfaiGZaNZW6w62 \
--bootstrap /ip4/3.25.68.133/tcp/44091/p2p/QmRt9CfTKBJKXdTPn3SGXNa2meVrgmFnMmajpgh43YaWn2 \
--bootstrap /ip4/52.64.136.38/tcp/44477/p2p/QmcoUbLKsgMmx2kerWxWW54sNL89kRMYHRqJGXN6wG2zhK
+./chat -wsport 8000 \
+-bootstrap /ip4/13.236.84.197/tcp/39589/p2p/Qmc9NUmrtY8ZdW9Tzd45obJ967n1HKtmEfKhdGtXEcWRzo \
+-bootstrap /ip4/3.106.59.113/tcp/37063/p2p/QmafbLCxsoWB7Zk4z3rXMetpzXsKZhEA5PdqgQpDx8iKkz \
+-bootstrap /ip4/3.106.53.149/tcp/34227/p2p/QmcfHPvy2VTPQsqstoDmtc5T6drW9cL9KtwxJrRWatY8y8 \
+-bootstrap /ip4/54.252.218.141/tcp/39825/p2p/QmbffA9nGngJB6k6FVaSRUL5uGqHCCWL9DwoNsSdEGKR88
 ```
