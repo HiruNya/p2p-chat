@@ -38,6 +38,11 @@ func server(ctx context.Context, h host.Host, cli CommandLineArguments, ps *pubs
 		ip = "localhost"
 	}
 	logger.Infof("Serving websocket connection on ws://%s:%d/connect", ip, cli.WebsocketPort)
+	if cli.Https {
+		go func() {
+			logger.Fatal(http.ListenAndServeTLS(":443", "domain.cert.pem", "private.key.pem", nil))
+		}()
+	}
 	logger.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", cli.Ip, cli.WebsocketPort), nil))
 }
 

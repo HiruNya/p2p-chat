@@ -15,6 +15,7 @@ type CommandLineArguments struct {
 	Ip            string
 	WebsocketPort uint64
 	Room          string
+	Https         bool
 }
 
 func ParseCliArgs() CommandLineArguments {
@@ -26,6 +27,7 @@ func ParseCliArgs() CommandLineArguments {
 	flag.StringVar(&args.Ip, "ip", "", "Public `IP` address (for relay peers)")
 	flag.Uint64Var(&args.WebsocketPort, "wsport", 8000, "The port where a websocket connection will be opened")
 	flag.StringVar(&args.Room, "room", "main", "The room to join")
+	flag.BoolVar(&args.Https, "https", false, "Whether to use https and connect to port 443 (a cert.pem)")
 	flag.Parse()
 	return args
 }
