@@ -57,6 +57,9 @@ export type RoomJoinData = {
 
 function connect(peer: string | null, wsOld: WebSocket | null) {
 	if (wsOld !== null) {
+		if (peer === wsOld.url) {
+			return (d: any) => {}
+		}
 		wsOld.close()
 	}
 	return (dispatch: any) => {

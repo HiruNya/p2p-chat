@@ -145,7 +145,8 @@ func (r *room) recv() {
 			name = msg.ID[len(msg.ID)-6 : len(msg.ID)]
 		}
 		r.mlog.Append(msg)
-		for i := 0; i < len(r.subscribed); i++ {
+		subscribed_len := len(r.subscribed)
+		for i := 0; i < subscribed_len; i++ {
 			conn := <-r.subscribed
 			err := conn.WriteJSON(wsMessage{
 				Type: MESSAGE,
@@ -155,9 +156,9 @@ func (r *room) recv() {
 			})
 			if err != nil {
 				logger.Errorf("Could not send message to client: %v", err)
-				continue
+			} else {
+				r.subscribed <- conn
 			}
-			r.subscribed <- conn
 		}
 	}
 }
